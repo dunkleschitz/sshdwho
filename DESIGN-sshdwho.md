@@ -145,3 +145,27 @@ extracted 9.6p1 binary + privsep user + ephemeral host key recipe),
 so the build can ship with live agreement tests instead of
 skip-guards. The accumulator list above is the verified core; H4's
 cross-check keeps it honest across versions.
+
+## Build notes (2026-10-23, v1.0.0)
+
+Empirical refinements found during the build (all against real 9.6p1):
+
+- **Match-block accumulators replace, not merge:** when a matching Match
+  block sets an accumulating keyword, the global values for that keyword
+  are discarded (per keyword — other accumulators keep their global
+  values); matching blocks' values chain in block order. E.g. global
+  `AcceptEnv LANG LC_*` + matching `Match User bob` / `AcceptEnv FOO_BAR`
+  → sshd reports only `acceptenv FOO_BAR`.
+- **Per-token -T lines:** `AcceptEnv LANG LC_*`, `AllowUsers root alice`,
+  `DenyUsers`, `AllowGroups`, `DenyGroups` report one line per token;
+  the parser expands multi-token directives at parse time (same
+  file:line per token).
+- **ListenAddress port expansion:** a bare address expands to one line
+  per effective port (`0.0.0.0` → `0.0.0.0:22`, `0.0.0.0:2222` with two
+  Ports); explicit-port tokens (`[::]:2022`) stand alone. Modeled with
+  the explicit-port heuristic + S03 guard.
+- **`Port` is illegal inside Match** (sshd errors) → S02 fail-closed.
+- Two real bugs caught by the test suite during the build: the per-token
+  splitting above, and the ephemeral host-key value being attributed as
+  "sshd default" when the config had no HostKey (ordering fix: H1
+  exclusion now runs before the default branch).
