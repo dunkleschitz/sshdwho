@@ -123,5 +123,5 @@ Precedence rules, verified empirically 2026-10-23 against OpenSSH 9.6p1:
 - [x] README documents real behavior incl. Limitations
 - [x] CHANGELOG.md present
 - [x] no secrets in code/tests/history
-- [x] license: MIT (pending Godsby's approval)
-- [ ] Godsby's approval before first publication
+- [x] license: MIT (see LICENSE)
+- [ ] Maintainer approval before first publication
